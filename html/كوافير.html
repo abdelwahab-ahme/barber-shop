@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>حجز المواعيد</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      background-color: #c0c0db; /* خلفية داكنة هادية */
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .slot {
+      padding: 10px;
+      border: 2px solid #4caf50;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #e8f5e9;
+    }
+    .slot.booked {
+      background-color: #ffcdd2;
+      border-color: #f44336;
+      cursor: not-allowed;
+    }
+    .timer {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #555;
+    }
+    table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #4caf50;
+      color: white;
+    }
+    caption {
+      caption-side: top;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    /* الساعة */
+    .demo-container.clocks {
+      background: rgba(200, 200, 200, 0.9);
+      padding: 4em 0 2em 1em;
+      text-align: center;
+    }
+
+    .clock {
+      border-radius: 50%;
+      background: radial-gradient(#000, #000 0.1em, #fff 0.1em, #fff), #fff;
+      display: inline-block;
+      position: relative;
+      width: 200px;
+      height: 200px;
+      opacity: 1;
+      margin: auto;
+    }
+
+    .clock::after {
+      background: red;
+      border-radius: 50%;
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      z-index: 10;
+    }
+
+    .hours-container,
+    .minutes-container,
+    .seconds-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      transform-origin: 50% 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .hours {
+      background: #000;
+      width: 7px;
+      height: 50px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: 50% 90%;
+      border-radius: 4px;
+      transform: rotateZ(0deg);
+      margin-left: -3.5px;
+      margin-top: -50px;
+      z-index: 3;
+    }
+
+    .minutes {
+      background: #000;
+      width: 5px;
+      height: 70px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: 50% 90%;
+      border-radius: 4px;
+      transform: rotateZ(0deg);
+      margin-left: -2.5px;
+      margin-top: -70px;
+      z-index: 2;
+    }
+
+    .seconds {
+      background: red;
+      width: 2px;
+      height: 90px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: 50% 90%;
+      border-radius: 2px;
+      transform: rotateZ(0deg);
+      margin-left: -1px;
+      margin-top: -90px;
+      z-index: 1;
+    }
+
+    
+  </style>
+</head>
+<body>
+ 
+
+  <h1>نظام حجز المواعيد</h1>
+  <div class="timer" id="timer"></div>
+  <div class="slots" id="slotsContainer"></div>
+
+  <!-- ساعة تناظرية -->
+  <div class="demo-container clocks">
+    <div class="clock" id="clock">
+      <div class="hours-container">
+        <div class="hours" id="hour-hand"></div>
+      </div>
+      <div class="minutes-container">
+        <div class="minutes" id="minute-hand"></div>
+      </div>
+      <div class="seconds-container">
+        <div class="seconds" id="second-hand"></div>
+      </div>
+    </div>
+  </div>
+
+  <table id="bookingTable">
+    <caption>قائمة الحجوزات الحالية</caption>
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>الساعة</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const startHour = 12;
+    const endHour = 24;
+    const slotsContainer = document.getElementById('slotsContainer');
+    const timerElement = document.getElementById('timer');
+    const bookingTableBody = document.querySelector('#bookingTable tbody');
+
+    const STORAGE_KEY = 'bookings';
+    const TIME_KEY = 'startTime';
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    // استرجاع الوقت
+    let startTime = localStorage.getItem(TIME_KEY);
+    const now = Date.now();
+
+    if (!startTime || now - Number(startTime) > DAY_MS) {
+      localStorage.setItem(TIME_KEY, now);
+      localStorage.removeItem(STORAGE_KEY);
+      startTime = now;
+    }
+
+    const bookings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+    function formatHour(hour) {
+      const h = hour > 12 ? hour - 12 : hour;
+      const ampm = hour < 12 ? 'ص' : 'م';
+      const nextHour = hour + 1 > 24 ? 1 : hour + 1;
+      const nextAmpm = nextHour < 12 || nextHour === 24 ? 'ص' : 'م';
+      return `${h} ${ampm} - ${nextHour > 12 ? nextHour - 12 : nextHour} ${nextAmpm}`;
+    }
+
+    function renderSlots() {
+      slotsContainer.innerHTML = '';
+      for (let hour = startHour; hour < endHour; hour++) {
+        const slotKey = `slot-${hour}`;
+        const isBooked = bookings[slotKey];
+        const div = document.createElement('div');
+        div.className = 'slot' + (isBooked ? ' booked' : '');
+        div.textContent = isBooked ? `${formatHour(hour)} - ${isBooked}` : formatHour(hour);
+
+        if (!isBooked) {
+          div.addEventListener('click', () => {
+            const name = prompt('أدخل اسمك لحجز الموعد:');
+            if (name) {
+              bookings[slotKey] = name;
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+              renderSlots();
+              renderTable();
+            }
+          });
+        }
+
+        slotsContainer.appendChild(div);
+      }
+    }
+
+    function renderTable() {
+      bookingTableBody.innerHTML = '';
+      const entries = Object.entries(bookings);
+      if (entries.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 2;
+        cell.textContent = 'لا توجد حجوزات حالياً';
+        row.appendChild(cell);
+        bookingTableBody.appendChild(row);
+      } else {
+        entries.sort((a, b) => {
+          const hourA = parseInt(a[0].split('-')[1]);
+          const hourB = parseInt(b[0].split('-')[1]);
+          return hourA - hourB;
+        }).forEach(([slotKey, name]) => {
+          const hour = parseInt(slotKey.split('-')[1]);
+          const row = document.createElement('tr');
+          const nameCell = document.createElement('td');
+          const hourCell = document.createElement('td');
+          nameCell.textContent = name;
+          hourCell.textContent = formatHour(hour);
+          row.appendChild(nameCell);
+          row.appendChild(hourCell);
+          bookingTableBody.appendChild(row);
+        });
+      }
+    }
+
+    function updateTimer() {
+      const now = Date.now();
+      const elapsed = now - Number(localStorage.getItem(TIME_KEY));
+      const remaining = DAY_MS - elapsed;
+
+      if (remaining <= 0) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(TIME_KEY, now);
+        location.reload();
+        return;
+      }
+
+      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+      timerElement.textContent = `تنتهي الدورة خلال: ${hours} س ${minutes} د ${seconds} ث`;
+    }
+
+    setInterval(updateTimer, 1000);
+
+    renderSlots();
+    renderTable();
+    updateTimer();
+
+    // تحديث الساعة التناظرية
+    function updateClock() {
+      const now = new Date();
+
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      const hours = now.getHours();
+
+      const secondDeg = seconds * 6; // 360 / 60
+      const minuteDeg = minutes * 6 + seconds * 0.1; // 6 درجات للدقيقة + تحريك بسيط بالثانية
+      const hourDeg = ((hours % 12) * 30) + (minutes * 0.5); // 30 درجة لكل ساعة + تحريك بسيط بالدقيقة
+
+      document.getElementById('second-hand').style.transform = `rotateZ(${secondDeg}deg)`;
+      document.getElementById('minute-hand').style.transform = `rotateZ(${minuteDeg}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotateZ(${hourDeg}deg)`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+  </script>
+</body>
+</html>
