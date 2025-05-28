@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كوافير المقص الذهبي</title>
+    <link rel="stylesheet" href="../css/1.css">
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000000;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .video-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .video-card {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 10px;
+      max-width: 360px;
+      flex: 1 1 300px;
+      transition: transform 0.2s;
+    }
+
+    .video-card:hover {
+      transform: scale(1.02);
+    }
+
+    video {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .video-title {
+      text-align: center;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+ <header class="navbar">
+        <h2><a href="#" class="logo">HAGAG</a></h2>
+         <button class="hamburger" onclick="toggleMenu()">☰</button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#" class="active">Home</a></li>
+        </ul>
+        <div class="search-box">
+            <input type="text" placeholder="ابحث هنا...">
+            <button>🔍</button>
+        </div>
+    </header>
+
+      <div class="hero-text">
+  المهارات
+</div>
+
+
+
+
+ 
+
+
+  <h2 style="text-align:center;">مجموعة الفيديوهات</h2>
+
+  <div class="video-container">
+    <div class="video-card">
+      <video controls>
+        <source src="video1.mp4" type="video/mp4">
+        المتصفح لا يدعم عرض الفيديو.
+      </video>
+      <div class="video-title">فيديو 1</div>
+    </div>
+
+    <div class="video-card">
+      <video controls>
+        <source src="video2.mp4" type="video/mp4">
+        المتصفح لا يدعم عرض الفيديو.
+      </video>
+      <div class="video-title">فيديو 2</div>
+    </div>
+
+    <div class="video-card">
+      <video controls>
+        <source src="video3.mp4" type="video/mp4">
+        المتصفح لا يدعم عرض الفيديو.
+      </video>
+      <div class="video-title">فيديو 3</div>
+    </div>
+    
+    <!-- أضف المزيد من الفيديوهات حسب الحاجة -->
+  </div>
+
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+     <!-- قسم "معلومات عني" و "تواصل معي" في أسفل الصفحة -->
+     <footer>
+        <div class="footer-container" id="footer">
+            <div class="footer-section" id="about-us">
+                <h3>من نحن</h3>
+                <p>نحن شركة متخصصة في تطوير مواقع الويب وتقديم حلول تقنية متكاملة.</p>
+            </div>
+            <div class="footer-section" id="contact">
+                <h3>تواصل معنا</h3>
+                <p>📧 <a href="mailto:abdelwahabhagag3@gmail.com">abdelwahabhagag3@gmail.com</a></p>
+                <p>📞 <a href="tel:+201286865533">+201286865533</a></p>
+                <p>📍 العنوان: الهرم الاول، القاهرة، مصر</p>
+            </div>
+            <div class="footer-section" id="info">
+                <h3>معلومات عنا</h3>
+                <p>هدفنا تقديم أفضل الخدمات التقنية لعملائنا ومساعدتهم على النجاح في أعمالهم الرقمية.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 جميع الحقوق محفوظة | عبدالوهاب حجاج
+        </div>
+    </footer>
+    
+  <script>
+  function toggleMenu() {
+    document.getElementById("navLinks").classList.toggle("show");
+  }
+</script>
+<script src="oop.js"></script>
+</body>
+</html>
