@@ -287,6 +287,7 @@ header ul li a.active {
 }
 #d1{
     background-image: url(../image/1.jpg);
+   
 }
 #d2{
     background-image: url(../image/2.jpg);
@@ -305,4 +306,24 @@ header ul li a.active {
 }
 #d7{
     background-image: url(../image/7.jpg);
+}
+#d8{
+    background-image: url(../image/8.jpg);
+     background-size: cover;
+}
+#d9{
+    background-image: url(../image/9.jpg);
+     background-size: cover;
+}
+#d10{
+    background-image: url(../image/10.jpg);
+     background-size: cover;
+}
+#d11{
+    background-image: url(../image/11.jpg);
+     background-size: cover;
+}
+#d12{
+    background-image: url(../image/12.jpg);
+     background-size: cover;
 }
